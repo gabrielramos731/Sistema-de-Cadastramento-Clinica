@@ -83,3 +83,4 @@ void cadastrarNovoUsuario(FILE *ponteiroLogin){
 	scanf("%[^\n]s", individuo.senha);
 	fwrite(&individuo, sizeof(login), 1, ponteiroLogin);  //cadastra sempre no final
 }
+ 
