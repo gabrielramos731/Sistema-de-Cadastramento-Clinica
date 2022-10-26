@@ -19,6 +19,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso);
 void cadastrarNovoUsuario(FILE *ponteiroLogin);
 void menuMedico(FILE *ponteiroMedicos);
 void cadastroNovoMedico(FILE *ponteiroMedicos);
+void buscarMedico(FILE *ponteiroMedicos);
 
 int main(){
 	FILE *ponteiroLogin;
@@ -60,7 +61,7 @@ int main(){
   //medico, usuario e paciente
 	do{
 
-    printf("Insira a opcao desejada: ");
+    printf("\nInsira a opcao desejada: ");
     printf("\n(1) Medico");
     printf("\n(2) Paciente");
     printf("\n(3) Consulta");
@@ -74,9 +75,11 @@ int main(){
 		  	break;
 			case 2:
 		    printf("Entrando na seccao paciente...\n");
+				//menu pacientes
 				break;
 			case 3:
 				printf("Entrando na seccao consultas...\n");
+				//menu consultas
    	 		break;
     	case 0:
       	printf("\nFechando programa...\n");
@@ -103,7 +106,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 		fseek(ponteiroLogin, 0*sizeof(login), SEEK_SET);  //resetar a posição da busca para o início
 		while(fread(&inidividuo, sizeof(login), 1, ponteiroLogin)){
 			if(strcmp(inidividuo.usuario, loginIndividuo) == 0 && strcmp(inidividuo.senha, senhaIndividuo) == 0){  //compara o login
-				printf("\nLogin efetuado com sucesso");
+				printf("\nLogin efetuado com sucesso\n");
 				*acesso = 1;  //chave para prosseguir
 				return 1;
 			}
@@ -143,7 +146,9 @@ void menuMedico(FILE *ponteiroMedicos){
 				fclose(ponteiroMedicos);
 				break;
 			case 2:
+				ponteiroMedicos = fopen("dados/medicos.bin", "rb");
 				buscarMedico(ponteiroMedicos);
+				fclose(ponteiroMedicos);
 				break;
 			case 3:
 				// listar medicos por especialidade
@@ -160,26 +165,42 @@ void cadastroNovoMedico(FILE *ponteiroMedicos){
 	medico medicoIndividuo;
 
 	fflush(stdin);
-	printf("\nCRM: ");
-	scanf("%[^\n]s", medicoIndividuo.crm);
-	fflush(stdin);
-	printf("Nome: ");
+	printf("\nNome: ");
 	scanf("%[^\n]s", medicoIndividuo.nome);
+	fflush(stdin);
+	printf("CRM: ");
+	scanf("%[^\n]s", medicoIndividuo.crm);
 	fflush(stdin);
 	printf("Especialidade: ");
 	scanf("%[^\n]s", medicoIndividuo.especialidade);
 	fflush(stdin);
 	printf("Data de nascimento: ");
-	scanf("%[^\n]s", medicoIndividuo.especialidade);
-	fflush(stdin);
-	printf("Valor por hora trabalhada: ");
-	scanf("%[^\n]f", &medicoIndividuo.valorHoraTrabalho);
+	scanf("%[^\n]s", medicoIndividuo.dataDeNascimento);
 	fflush(stdin);
 	printf("Telefone: ");
 	scanf("%[^\n]s", medicoIndividuo.telefone);
+	printf("Valor por hora trabalhada: ");
+	scanf("%f%*c", &medicoIndividuo.valorHoraTrabalho);
+	fflush(stdin);
 	fwrite(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos);
 }
 
-void buscarMedico(){
-	
+void buscarMedico(FILE *ponteiroMedicos){
+	medico medicoIndividuo;
+	char nomeMedicoBuscado[50];
+
+	printf("\nNome: ");
+	fflush(stdin);
+	scanf("%[^\n]s", nomeMedicoBuscado);
+	fseek(ponteiroMedicos, 0*sizeof(medico), SEEK_SET);
+	while(fread(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos)){
+		if(strcmp(medicoIndividuo.nome, nomeMedicoBuscado) == 0){
+			printf("\nNome: %s", medicoIndividuo.nome);
+			printf("\nCRM: %s", medicoIndividuo.crm);
+			printf("\nEspecialidade: %s", medicoIndividuo.especialidade);
+			printf("\nData de nascimento: %s", medicoIndividuo.dataDeNascimento);
+			printf("\nTelefone: %s", medicoIndividuo.telefone);
+			printf("\nValor por hora trabalhada: %.2f\n", medicoIndividuo.valorHoraTrabalho);
+		}
+	}
 }
