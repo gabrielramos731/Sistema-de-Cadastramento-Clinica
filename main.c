@@ -20,6 +20,7 @@ void cadastrarNovoUsuario(FILE *ponteiroLogin);
 void menuMedico(FILE *ponteiroMedicos);
 void cadastroNovoMedico(FILE *ponteiroMedicos);
 void buscarMedico(FILE *ponteiroMedicos);
+void listarPorEspecialidade(FILE *ponteiroMedicos);
 
 int main(){
 	FILE *ponteiroLogin;
@@ -66,8 +67,9 @@ int main(){
     printf("\n(2) Paciente");
     printf("\n(3) Consulta");
     printf("\n(0) Encerrar programa\n");
-
     scanf("%d", &opcao);
+
+		//faz uma função de menu para cada opção de secção
     switch(opcao){
 	  	case 1:
 		  	printf("Entrando na seccao medicos...\n");
@@ -151,7 +153,9 @@ void menuMedico(FILE *ponteiroMedicos){
 				fclose(ponteiroMedicos);
 				break;
 			case 3:
-				// listar medicos por especialidade
+				ponteiroMedicos = fopen("dados/medicos.bin", "rb");
+				listarPorEspecialidade(ponteiroMedicos);
+				fclose(ponteiroMedicos);
 				break;
 			case 4:
 				// alterar dados de um medico especifico
@@ -188,6 +192,7 @@ void cadastroNovoMedico(FILE *ponteiroMedicos){
 void buscarMedico(FILE *ponteiroMedicos){
 	medico medicoIndividuo;
 	char nomeMedicoBuscado[50];
+	int cont = 0;
 
 	printf("\nNome: ");
 	fflush(stdin);
@@ -195,6 +200,32 @@ void buscarMedico(FILE *ponteiroMedicos){
 	fseek(ponteiroMedicos, 0*sizeof(medico), SEEK_SET);
 	while(fread(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos)){
 		if(strcmp(medicoIndividuo.nome, nomeMedicoBuscado) == 0){
+			printf("\nNome: %s", medicoIndividuo.nome);
+			printf("\nCRM: %s", medicoIndividuo.crm);
+			printf("\nEspecialidade: %s", medicoIndividuo.especialidade);
+			printf("\nData de nascimento: %s", medicoIndividuo.dataDeNascimento);
+			printf("\nTelefone: %s", medicoIndividuo.telefone);
+			printf("\nValor por hora trabalhada: %.2f\n", medicoIndividuo.valorHoraTrabalho);
+			cont++;
+			break;
+		}
+	}
+	if(cont == 0){
+		printf("\nMedico nao encontrado\n");
+	}
+	cont = 0;
+}
+
+void listarPorEspecialidade(FILE *ponteiroMedicos){
+	medico medicoIndividuo;
+	char especialidadeBuscada[20];
+
+	fflush(stdin);
+	scanf("%[^\n]s", especialidadeBuscada);
+
+	fseek(ponteiroMedicos, 0*sizeof(medico), SEEK_SET);
+	while(fread(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos)){
+		if(strcmp(medicoIndividuo.especialidade, especialidadeBuscada) == 0){
 			printf("\nNome: %s", medicoIndividuo.nome);
 			printf("\nCRM: %s", medicoIndividuo.crm);
 			printf("\nEspecialidade: %s", medicoIndividuo.especialidade);
