@@ -17,6 +17,8 @@ typedef struct{
 
 void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso);
 void cadastrarNovoUsuario(FILE *ponteiroLogin);
+void menuMedico(FILE *ponteiroMedicos);
+void cadastroNovoMedico(FILE *ponteiroMedicos);
 
 int main(){
 	FILE *ponteiroLogin;
@@ -62,18 +64,19 @@ int main(){
     printf("\n(1) Medico");
     printf("\n(2) Paciente");
     printf("\n(3) Consulta");
-    printf("\n(0) Encerra programa\n");
+    printf("\n(0) Encerrar programa\n");
 
     scanf("%d", &opcao);
     switch(opcao){
 	  	case 1:
-		  	printf("Entrando na seccao medicos...");
+		  	printf("Entrando na seccao medicos...\n");
+				menuMedico(ponteiroMedicos);
 		  	break;
 			case 2:
-		    printf("Entrando na seccao paciente...");
+		    printf("Entrando na seccao paciente...\n");
 				break;
 			case 3:
-				printf("Entrando na seccao consultas...");
+				printf("Entrando na seccao consultas...\n");
    	 		break;
     	case 0:
       	printf("\nFechando programa...\n");
@@ -97,6 +100,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 		printf("Senha: ");
 		scanf("%[^\n]s", senhaIndividuo);
 
+		fseek(ponteiroLogin, 0*sizeof(login), SEEK_SET);  //resetar a posição da busca para o início
 		while(fread(&inidividuo, sizeof(login), 1, ponteiroLogin)){
 			if(strcmp(inidividuo.usuario, loginIndividuo) == 0 && strcmp(inidividuo.senha, senhaIndividuo) == 0){  //compara o login
 				printf("\nLogin efetuado com sucesso");
@@ -119,4 +123,63 @@ void cadastrarNovoUsuario(FILE *ponteiroLogin){
 	printf("Nova senha: ");
 	scanf("%[^\n]s", individuo.senha);
 	fwrite(&individuo, sizeof(login), 1, ponteiroLogin);  //cadastra sempre no final
+}
+
+void menuMedico(FILE *ponteiroMedicos){
+	int opcao;
+
+	do{
+		printf("\n(1) Inserir novo medico");
+		printf("\n(2) Buscar medico especifico por nome");
+		printf("\n(3) Listar medicos por especialidade");
+		printf("\n(4) Alterar dados de um medico especifico");
+		printf("\n(0) Retornar\n");
+		scanf("%d", &opcao);
+
+		switch(opcao){
+			case 1:
+				ponteiroMedicos = fopen("dados/medicos.bin", "ab");
+				cadastroNovoMedico(ponteiroMedicos);
+				fclose(ponteiroMedicos);
+				break;
+			case 2:
+				buscarMedico(ponteiroMedicos);
+				break;
+			case 3:
+				// listar medicos por especialidade
+				break;
+			case 4:
+				// alterar dados de um medico especifico
+				break;
+		}
+	} while(opcao != 0);
+}
+
+void cadastroNovoMedico(FILE *ponteiroMedicos){
+
+	medico medicoIndividuo;
+
+	fflush(stdin);
+	printf("\nCRM: ");
+	scanf("%[^\n]s", medicoIndividuo.crm);
+	fflush(stdin);
+	printf("Nome: ");
+	scanf("%[^\n]s", medicoIndividuo.nome);
+	fflush(stdin);
+	printf("Especialidade: ");
+	scanf("%[^\n]s", medicoIndividuo.especialidade);
+	fflush(stdin);
+	printf("Data de nascimento: ");
+	scanf("%[^\n]s", medicoIndividuo.especialidade);
+	fflush(stdin);
+	printf("Valor por hora trabalhada: ");
+	scanf("%[^\n]f", &medicoIndividuo.valorHoraTrabalho);
+	fflush(stdin);
+	printf("Telefone: ");
+	scanf("%[^\n]s", medicoIndividuo.telefone);
+	fwrite(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos);
+}
+
+void buscarMedico(){
+	
 }
