@@ -243,7 +243,7 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 void alterarDadosMedico(FILE *ponteiroMedicos){  //se tiver crm igual ele da erro no nome
 	medico medicoIndividuo;
 	char crmIndividuo[6];
-	int contadorArquivo = 0;
+	int contadorArquivo = 0, achou = 0;
 
 	printf("\nCRM do medico: ");
 	fflush(stdin);
@@ -273,8 +273,11 @@ void alterarDadosMedico(FILE *ponteiroMedicos){  //se tiver crm igual ele da err
 
 			fseek(ponteiroMedicos, (contadorArquivo)*sizeof(medico), SEEK_SET);
 			fwrite(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos);
+			achou = 1;
 			break;
 		}
 		contadorArquivo++;
 	}
+	if(achou == 0)
+		printf("\nCRM nao encontrado\n");
 }
