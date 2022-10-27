@@ -21,6 +21,7 @@ void menuMedico(FILE *ponteiroMedicos);
 void cadastroNovoMedico(FILE *ponteiroMedicos);
 void buscarMedico(FILE *ponteiroMedicos);
 void listarPorEspecialidade(FILE *ponteiroMedicos);
+void alterarDadosMedico(FILE *ponteiroMedicos);
 
 int main(){
 	FILE *ponteiroLogin;
@@ -158,7 +159,9 @@ void menuMedico(FILE *ponteiroMedicos){
 				fclose(ponteiroMedicos);
 				break;
 			case 4:
-				// alterar dados de um medico especifico
+				ponteiroMedicos = fopen("dados/medicos.bin", "r+b");
+				alterarDadosMedico(ponteiroMedicos);
+				fclose(ponteiroMedicos);
 				break;
 		}
 	} while(opcao != 0);
@@ -221,6 +224,7 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 	char especialidadeBuscada[20];
 
 	fflush(stdin);
+	printf("\nEspecialidade desejada: ");
 	scanf("%[^\n]s", especialidadeBuscada);
 
 	fseek(ponteiroMedicos, 0*sizeof(medico), SEEK_SET);
@@ -233,5 +237,44 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 			printf("\nTelefone: %s", medicoIndividuo.telefone);
 			printf("\nValor por hora trabalhada: %.2f\n", medicoIndividuo.valorHoraTrabalho);
 		}
+	}
+}
+
+void alterarDadosMedico(FILE *ponteiroMedicos){  //se tiver crm igual ele da erro no nome
+	medico medicoIndividuo;
+	char crmIndividuo[6];
+	int contadorArquivo = 0;
+
+	printf("\nCRM do medico: ");
+	fflush(stdin);
+	scanf("%[^\n]s", crmIndividuo);
+
+	while(fread(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos)){
+		if(strcmp(medicoIndividuo.crm, crmIndividuo) == 0){
+			fflush(stdin);
+			printf("\nNovo nome: ");
+			scanf("%[^\n]s", medicoIndividuo.nome);
+			fflush(stdin);
+			printf("Novo CRM: ");
+			scanf("%[^\n]s", medicoIndividuo.crm);
+			fflush(stdin);
+			printf("Nova especialidade: ");
+			scanf("%[^\n]s", medicoIndividuo.especialidade);
+			fflush(stdin);
+			printf("Nova data de nascimento: ");
+			scanf("%[^\n]s", medicoIndividuo.dataDeNascimento);
+			fflush(stdin);
+			printf("Novo telefone: ");
+			scanf("%[^\n]s", medicoIndividuo.telefone);
+			fflush(stdin);
+			printf("Novo valor por hora trabalhada: ");
+			scanf("%f%*c", &medicoIndividuo.valorHoraTrabalho);
+			fflush(stdin);
+
+			fseek(ponteiroMedicos, (contadorArquivo)*sizeof(medico), SEEK_SET);
+			fwrite(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos);
+			break;
+		}
+		contadorArquivo++;
 	}
 }
