@@ -1,19 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
-
-typedef struct{
-	char usuario[20];
-	char senha[10];
-} login;
-
-typedef struct{
-  char crm[6];
-  char nome[50];
-  char especialidade[20];
-  char dataDeNascimento[10];
-  char telefone[11];
-  float valorHoraTrabalho;
-} medico;
+#include<string.h>
+#include"struct.h"
 
 void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso);
 void cadastrarNovoUsuario(FILE *ponteiroLogin);
@@ -22,10 +10,15 @@ void cadastroNovoMedico(FILE *ponteiroMedicos);
 void buscarMedico(FILE *ponteiroMedicos);
 void listarPorEspecialidade(FILE *ponteiroMedicos);
 void alterarDadosMedico(FILE *ponteiroMedicos);
+void menuPaciente(FILE *ponteiroPacientes);
+void cadastroNovoPaciente (FILE *ponteiroPacientes);
+void buscarPaciente (FILE *ponteiroPacientes);
+void alterarDadosPaciente(FILE *ponteiroPacientes);
 
 int main(){
-	FILE *ponteiroLogin;
-	FILE *ponteiroMedicos;
+	FILE *ponteiroLogin = 0;
+	FILE *ponteiroMedicos = 0;
+	FILE *ponteiroPacientes = 0;
 	int opcao, contadorTentativas = 0, acesso = 0;
 
   //login e cadastro
@@ -73,26 +66,30 @@ int main(){
 		//faz uma função de menu para cada opção de secção
     switch(opcao){
 	  	case 1:
+			//menu de medicos
 		  	printf("Entrando na seccao medicos...\n");
-				menuMedico(ponteiroMedicos);
+			menuMedico(ponteiroMedicos);
 		  	break;
-			case 2:
-		    printf("Entrando na seccao paciente...\n");
-				//menu pacientes
-				break;
-			case 3:
-				printf("Entrando na seccao consultas...\n");
-				//menu consultas
+		case 2:
+			//menu de pacientes
+		   	printf("Entrando na seccao paciente...\n");
+			menuPaciente(ponteiroPacientes);
+
+			break;
+		case 3:
+			//menu de consultas
+			printf("Entrando na seccao consultas...\n");
+				
    	 		break;
     	case 0:
-      	printf("\nFechando programa...\n");
-      	break;
+      		printf("\nFechando programa...\n");
+      		break;
 	  	default:
-	  		printf("\nOpcao invalida\n\n");
+	  		printf("\nOpcao invalida\n");
 		}
 	}while (opcao != 0);
-}
-
+};
+//verificar saida da função ou alterar para função int
 void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 	char loginIndividuo[20];
 	char senhaIndividuo[10];
@@ -117,7 +114,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 		printf("\nLogin ou senha invalidos\n");
 		*contadorTentativas += 1;
 	} while(*contadorTentativas < 3);
-}
+};
 
 void cadastrarNovoUsuario(FILE *ponteiroLogin){
 	login individuo;
@@ -129,7 +126,9 @@ void cadastrarNovoUsuario(FILE *ponteiroLogin){
 	printf("Nova senha: ");
 	scanf("%[^\n]s", individuo.senha);
 	fwrite(&individuo, sizeof(login), 1, ponteiroLogin);  //cadastra sempre no final
-}
+};
+
+//-------------------------------Inicio Medicos----------------------------------------------
 
 void menuMedico(FILE *ponteiroMedicos){
 	int opcao;
@@ -163,9 +162,14 @@ void menuMedico(FILE *ponteiroMedicos){
 				alterarDadosMedico(ponteiroMedicos);
 				fclose(ponteiroMedicos);
 				break;
+			case 0:
+			printf("\nRetornando...\n");
+			break;
+			default:
+				printf("\nFuncao invalida!\n");
 		}
 	} while(opcao != 0);
-}
+};
 
 void cadastroNovoMedico(FILE *ponteiroMedicos){
 
@@ -190,7 +194,7 @@ void cadastroNovoMedico(FILE *ponteiroMedicos){
 	scanf("%f%*c", &medicoIndividuo.valorHoraTrabalho);
 	fflush(stdin);
 	fwrite(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos);
-}
+};
 
 void buscarMedico(FILE *ponteiroMedicos){
 	medico medicoIndividuo;
@@ -217,7 +221,7 @@ void buscarMedico(FILE *ponteiroMedicos){
 		printf("\nMedico nao encontrado\n");
 	}
 	cont = 0;
-}
+};
 
 void listarPorEspecialidade(FILE *ponteiroMedicos){
 	medico medicoIndividuo;
@@ -238,7 +242,7 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 			printf("\nValor por hora trabalhada: %.2f\n", medicoIndividuo.valorHoraTrabalho);
 		}
 	}
-}
+};
 
 void alterarDadosMedico(FILE *ponteiroMedicos){  //se tiver crm igual ele da erro no nome
 	medico medicoIndividuo;
@@ -280,4 +284,135 @@ void alterarDadosMedico(FILE *ponteiroMedicos){  //se tiver crm igual ele da err
 	}
 	if(achou == 0)
 		printf("\nCRM nao encontrado\n");
-}
+};
+
+//-------------------------------fim Medicos----------------------------------------------
+
+//------------------------------Inicio Pacientes------------------------------------------
+
+void menuPaciente(FILE *ponteiroPacientes){
+	int opcao;
+
+	do{
+		printf("\n(1) Inserir novo paciente");
+		printf("\n(2) Buscar pelo nome");
+		printf("\n(3) Alterar dados de um paciente");
+		printf("\n(0) Retornar\n");
+		scanf("%d",&opcao);
+
+		switch (opcao)
+			{
+			case 1:
+				ponteiroPacientes = fopen("dados/paciente.bin","ab");
+				cadastroNovoPaciente(ponteiroPacientes);
+				fclose(ponteiroPacientes);
+				break;
+			case 2:
+				ponteiroPacientes = fopen("dados/paciente.bin","rb");
+				buscarPaciente(ponteiroPacientes);
+				fclose(ponteiroPacientes);
+				break;
+			case 3:
+				ponteiroPacientes = fopen("dados/paciente.bin","r+b");
+				alterarDadosPaciente(ponteiroPacientes);
+				fclose(ponteiroPacientes);
+			case 0:
+			printf("\nRetornando...\n");
+			break;
+			default:
+				printf("\nFuncao Invalida!\n");
+			}
+	}while(opcao != 0);
+};
+
+//falta colocar o bloqueio de cadastro de cpf igual
+void cadastroNovoPaciente (FILE *ponteiroPacientes){
+
+	paciente pacienteIndividuo;
+	char cpf[11];
+	
+		fflush(stdin);
+		printf("\nNome: ");
+		scanf("%[^\n]s", pacienteIndividuo.nome);
+		fflush(stdin);
+		printf("\nCPF: ");
+		scanf("%[^\n]s", pacienteIndividuo.cpf);
+		strcpy(cpf,pacienteIndividuo.cpf);
+		fflush(stdin);
+		printf("\nData de nascimento: ");
+		scanf("%[^\n]s", pacienteIndividuo.dataDeNascimento);
+		fflush(stdin);
+		printf("\nTelefone: ");
+		scanf("%[^\n]s", pacienteIndividuo.telefone);
+		fflush(stdin);
+		fwrite(&pacienteIndividuo, sizeof(paciente), 1, ponteiroPacientes);
+
+	//---------------------verificar no bando de dados de existe um cpf cadastrado-------------------------------------
+	
+};
+
+void buscarPaciente (FILE *ponteiroPacientes){
+	paciente pacienteIndividuo;
+	char nomePacienteBuscado[50];
+	int cont = 0;
+
+	printf("\nNome: ");
+	fflush(stdin);
+	scanf("%[^\n]s", nomePacienteBuscado);
+	fseek(ponteiroPacientes, 0*sizeof(paciente), SEEK_SET);
+	while(fread(&pacienteIndividuo, sizeof(paciente), 1, ponteiroPacientes)){
+	 	if(strcmp(pacienteIndividuo.nome, nomePacienteBuscado) == 0){
+	 		printf("\nNome: %s", pacienteIndividuo.nome);
+			printf("\nCPF: %s", pacienteIndividuo.cpf);
+			printf("\nData de nascimento: %s", pacienteIndividuo.dataDeNascimento);
+			printf("\nTelefone: %s\n", pacienteIndividuo.telefone);
+	 		cont++;
+	 		break;
+	 	}
+	}
+	if(cont == 0){
+		printf("\nMedico nao encontrado\n");
+	}
+	cont = 0;
+};
+
+void alterarDadosPaciente(FILE *ponteiroPacientes){
+	paciente pacienteIndividuo;
+	char nomePacienteBuscado[50];
+	int contadorArquivo = 0, achou = 0;
+
+	fflush(stdin);
+	printf("\nNome: ");
+	scanf("%[^\n]s", nomePacienteBuscado);
+
+	while(fread(&pacienteIndividuo, sizeof(paciente), 1, ponteiroPacientes)){
+		if(strcmp(nomePacienteBuscado,pacienteIndividuo.nome)==0){
+			fflush(stdin);
+			printf("\nNome: ");
+			scanf("%[^\n]s",pacienteIndividuo.nome);
+			fflush(stdin);
+			printf("\nCPF: ");
+			scanf("%[^\n]s",pacienteIndividuo.cpf);
+			fflush(stdin);
+			printf("\nData de Nascimento: ");
+			scanf("%[^\n]s",pacienteIndividuo.dataDeNascimento);
+			fflush(stdin);
+			printf("\nTelefone: ");
+			scanf("%[^\n]s",pacienteIndividuo.telefone);
+			fflush(stdin);
+			
+			fseek(ponteiroPacientes, (contadorArquivo)*sizeof(paciente), SEEK_SET);
+			fwrite(&pacienteIndividuo, sizeof(paciente), 1, ponteiroPacientes);
+			achou = 1;
+			break;
+		}
+		contadorArquivo++;
+	}
+	if(achou == 1)
+		printf("\nDados alterados com sucesso!\n");
+	if(achou == 0){
+		printf("\nPaciente nao encontrado!\n");
+	}
+};
+//-------------------------------fim Pacientes--------------------------------------------
+
