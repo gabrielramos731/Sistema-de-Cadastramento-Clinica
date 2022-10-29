@@ -14,6 +14,7 @@ void menuPaciente(FILE *ponteiroPacientes);
 void cadastroNovoPaciente (FILE *ponteiroPacientes);
 void buscarPaciente (FILE *ponteiroPacientes);
 void alterarDadosPaciente(FILE *ponteiroPacientes);
+int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente);
 
 int main(){
 	FILE *ponteiroLogin = 0;
@@ -89,7 +90,7 @@ int main(){
 		}
 	}while (opcao != 0);
 };
-//verificar saida da função ou alterar para função int
+
 void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 	char loginIndividuo[20];
 	char senhaIndividuo[10];
@@ -108,7 +109,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 			if(strcmp(inidividuo.usuario, loginIndividuo) == 0 && strcmp(inidividuo.senha, senhaIndividuo) == 0){  //compara o login
 				printf("\nLogin efetuado com sucesso\n");
 				*acesso = 1;  //chave para prosseguir
-				return 1;
+				return;
 			}
 		}
 		printf("\nLogin ou senha invalidos\n");
@@ -174,6 +175,7 @@ void menuMedico(FILE *ponteiroMedicos){
 void cadastroNovoMedico(FILE *ponteiroMedicos){
 
 	medico medicoIndividuo;
+	char crmTeste[6];
 
 	fflush(stdin);
 	printf("\nNome: ");
@@ -182,6 +184,12 @@ void cadastroNovoMedico(FILE *ponteiroMedicos){
 	printf("CRM: ");
 	scanf("%[^\n]s", medicoIndividuo.crm);
 	fflush(stdin);
+
+	strcpy(crmTeste, medicoIndividuo.crm);
+	if(verificaDadoRepetido(ponteiroMedicos, crmTeste, 1) == 1) {
+		printf("\nMedico ja cadastrado\n");
+		return;
+	}
 	printf("Especialidade: ");
 	scanf("%[^\n]s", medicoIndividuo.especialidade);
 	fflush(stdin);
@@ -214,7 +222,6 @@ void buscarMedico(FILE *ponteiroMedicos){
 			printf("\nTelefone: %s", medicoIndividuo.telefone);
 			printf("\nValor por hora trabalhada: %.2f\n", medicoIndividuo.valorHoraTrabalho);
 			cont++;
-			break;
 		}
 	}
 	if(cont == 0){
@@ -244,10 +251,12 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 	}
 };
 
-void alterarDadosMedico(FILE *ponteiroMedicos){  //se tiver crm igual ele da erro no nome
+void alterarDadosMedico(FILE *ponteiroMedicos){
 	medico medicoIndividuo;
 	char crmIndividuo[6];
 	int contadorArquivo = 0, achou = 0;
+	char crmTeste[6];
+
 
 	printf("\nCRM do medico: ");
 	fflush(stdin);
@@ -262,6 +271,13 @@ void alterarDadosMedico(FILE *ponteiroMedicos){  //se tiver crm igual ele da err
 			printf("Novo CRM: ");
 			scanf("%[^\n]s", medicoIndividuo.crm);
 			fflush(stdin);
+
+			strcpy(crmTeste, medicoIndividuo.crm);
+				if(verificaDadoRepetido(ponteiroMedicos, crmTeste, 1) == 1) {
+					printf("\nMedico ja cadastrado\n");
+					return;
+				}
+
 			printf("Nova especialidade: ");
 			scanf("%[^\n]s", medicoIndividuo.especialidade);
 			fflush(stdin);
@@ -317,32 +333,37 @@ void menuPaciente(FILE *ponteiroPacientes){
 				alterarDadosPaciente(ponteiroPacientes);
 				fclose(ponteiroPacientes);
 			case 0:
-			printf("\nRetornando...\n");
-			break;
+				printf("\nRetornando...\n");
+				break;
 			default:
 				printf("\nFuncao Invalida!\n");
 			}
 	}while(opcao != 0);
 };
 
-//falta colocar o bloqueio de cadastro de cpf igual
 void cadastroNovoPaciente (FILE *ponteiroPacientes){
 
 	paciente pacienteIndividuo;
-	char cpf[11];
+	char cpfTeste[11];
 	
 		fflush(stdin);
 		printf("\nNome: ");
 		scanf("%[^\n]s", pacienteIndividuo.nome);
 		fflush(stdin);
-		printf("\nCPF: ");
+		printf("CPF: ");
 		scanf("%[^\n]s", pacienteIndividuo.cpf);
-		strcpy(cpf,pacienteIndividuo.cpf);
 		fflush(stdin);
-		printf("\nData de nascimento: ");
+
+		strcpy(cpfTeste, pacienteIndividuo.cpf);
+		if(verificaDadoRepetido(ponteiroPacientes, cpfTeste, 0) == 1) {
+			printf("\nPaciente ja cadastrado\n");
+			return;
+		}
+
+		printf("Data de nascimento: ");
 		scanf("%[^\n]s", pacienteIndividuo.dataDeNascimento);
 		fflush(stdin);
-		printf("\nTelefone: ");
+		printf("Telefone: ");
 		scanf("%[^\n]s", pacienteIndividuo.telefone);
 		fflush(stdin);
 		fwrite(&pacienteIndividuo, sizeof(paciente), 1, ponteiroPacientes);
@@ -352,6 +373,7 @@ void cadastroNovoPaciente (FILE *ponteiroPacientes){
 };
 
 void buscarPaciente (FILE *ponteiroPacientes){
+
 	paciente pacienteIndividuo;
 	char nomePacienteBuscado[50];
 	int cont = 0;
@@ -380,6 +402,7 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 	paciente pacienteIndividuo;
 	char nomePacienteBuscado[50];
 	int contadorArquivo = 0, achou = 0;
+	char cpfTeste[11];
 
 	fflush(stdin);
 	printf("\nNome: ");
@@ -391,13 +414,20 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 			printf("\nNome: ");
 			scanf("%[^\n]s",pacienteIndividuo.nome);
 			fflush(stdin);
-			printf("\nCPF: ");
+			printf("CPF: ");
 			scanf("%[^\n]s",pacienteIndividuo.cpf);
 			fflush(stdin);
-			printf("\nData de Nascimento: ");
+
+			strcpy(cpfTeste, pacienteIndividuo.cpf);
+					if(verificaDadoRepetido(ponteiroPacientes, cpfTeste, 0) == 1) {
+						printf("\nPaciente ja cadastrado\n");
+						return;
+					}
+
+			printf("Data de Nascimento: ");
 			scanf("%[^\n]s",pacienteIndividuo.dataDeNascimento);
 			fflush(stdin);
-			printf("\nTelefone: ");
+			printf("Telefone: ");
 			scanf("%[^\n]s",pacienteIndividuo.telefone);
 			fflush(stdin);
 			
@@ -416,3 +446,38 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 };
 //-------------------------------fim Pacientes--------------------------------------------
 
+int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente){
+
+	medico medicoIndividuo;
+	paciente pacienteIndividuo;
+
+	if(medicoPaciente == 1){   //se for medico
+		arquivoGenerico	= fopen("dados/medicos.bin", "rb");
+		fseek(arquivoGenerico, 0*sizeof(medico), SEEK_SET);
+		while(fread(&medicoIndividuo, sizeof(medico), 1, arquivoGenerico)){
+			if(strcmp(dadoComparado, medicoIndividuo.crm) == 0){
+				fclose(arquivoGenerico);
+				return 1;  //crm repetido
+			}
+		}
+		return 0;  //crm nao repetido
+	}
+
+	else{   //se for paciente
+		arquivoGenerico	= fopen("dados/paciente.bin", "rb");
+		fseek(arquivoGenerico, 0*sizeof(paciente), SEEK_SET);
+		while(fread(&pacienteIndividuo, sizeof(paciente), 1, arquivoGenerico)){
+			if(strcmp(dadoComparado, pacienteIndividuo.cpf) == 0){
+				fclose(arquivoGenerico);
+				return 1;  //cpf repetido
+			}
+		}
+		return 0;  //cpf nao repetido
+	}
+};
+
+// ------------------------------inicio consulta------------------------------------------
+
+// funções
+
+// ------------------------------fim consulta---------------------------------------------
