@@ -17,12 +17,13 @@ void alterarDadosPaciente(FILE *ponteiroPacientes);
 int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente);
 
 int main(){
+
 	FILE *ponteiroLogin = 0;
 	FILE *ponteiroMedicos = 0;
 	FILE *ponteiroPacientes = 0;
 	int opcao, contadorTentativas = 0, acesso = 0;
 
-  //login e cadastro
+  	//login e cadastro
 	do{
 		printf("\n***** MENU *****\n");
 		printf("(1) Efetuar login\n(2) Cadastrar usuario\n(0) Encerrar programa\n");
@@ -54,7 +55,7 @@ int main(){
 		}
 	} while (acesso != 1);
 
-  //medico, usuario e paciente
+  	//medico, usuario e paciente
 	do{
 
     printf("\nInsira a opcao desejada: ");
@@ -64,7 +65,7 @@ int main(){
     printf("\n(0) Encerrar programa\n");
     scanf("%d", &opcao);
 
-		//faz uma função de menu para cada opção de secção
+	//faz uma função de menu para cada opção de secção
     switch(opcao){
 	  	case 1:
 			//menu de medicos
@@ -92,6 +93,7 @@ int main(){
 };
 
 void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
+
 	char loginIndividuo[20];
 	char senhaIndividuo[10];
 	login inidividuo;
@@ -118,6 +120,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 };
 
 void cadastrarNovoUsuario(FILE *ponteiroLogin){
+
 	login individuo;
 
 	fflush(stdin);
@@ -132,6 +135,7 @@ void cadastrarNovoUsuario(FILE *ponteiroLogin){
 //-------------------------------Inicio Medicos----------------------------------------------
 
 void menuMedico(FILE *ponteiroMedicos){
+
 	int opcao;
 
 	do{
@@ -205,6 +209,7 @@ void cadastroNovoMedico(FILE *ponteiroMedicos){
 };
 
 void buscarMedico(FILE *ponteiroMedicos){
+
 	medico medicoIndividuo;
 	char nomeMedicoBuscado[50];
 	int cont = 0;
@@ -231,6 +236,7 @@ void buscarMedico(FILE *ponteiroMedicos){
 };
 
 void listarPorEspecialidade(FILE *ponteiroMedicos){
+
 	medico medicoIndividuo;
 	char especialidadeBuscada[20];
 
@@ -252,11 +258,11 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 };
 
 void alterarDadosMedico(FILE *ponteiroMedicos){
+
 	medico medicoIndividuo;
 	char crmIndividuo[6];
 	int contadorArquivo = 0, achou = 0;
 	char crmTeste[6];
-
 
 	printf("\nCRM do medico: ");
 	fflush(stdin);
@@ -307,6 +313,7 @@ void alterarDadosMedico(FILE *ponteiroMedicos){
 //------------------------------Inicio Pacientes------------------------------------------
 
 void menuPaciente(FILE *ponteiroPacientes){
+
 	int opcao;
 
 	do{
@@ -316,20 +323,19 @@ void menuPaciente(FILE *ponteiroPacientes){
 		printf("\n(0) Retornar\n");
 		scanf("%d",&opcao);
 
-		switch (opcao)
-			{
+		switch (opcao){
 			case 1:
-				ponteiroPacientes = fopen("dados/paciente.bin","ab");
+				ponteiroPacientes = fopen("dados/pacientes.bin","ab");
 				cadastroNovoPaciente(ponteiroPacientes);
 				fclose(ponteiroPacientes);
 				break;
 			case 2:
-				ponteiroPacientes = fopen("dados/paciente.bin","rb");
+				ponteiroPacientes = fopen("dados/pacientes.bin","rb");
 				buscarPaciente(ponteiroPacientes);
 				fclose(ponteiroPacientes);
 				break;
 			case 3:
-				ponteiroPacientes = fopen("dados/paciente.bin","r+b");
+				ponteiroPacientes = fopen("dados/pacientes.bin","r+b");
 				alterarDadosPaciente(ponteiroPacientes);
 				fclose(ponteiroPacientes);
 			case 0:
@@ -337,7 +343,7 @@ void menuPaciente(FILE *ponteiroPacientes){
 				break;
 			default:
 				printf("\nFuncao Invalida!\n");
-			}
+			}	
 	}while(opcao != 0);
 };
 
@@ -399,6 +405,7 @@ void buscarPaciente (FILE *ponteiroPacientes){
 };
 
 void alterarDadosPaciente(FILE *ponteiroPacientes){
+
 	paciente pacienteIndividuo;
 	char nomePacienteBuscado[50];
 	int contadorArquivo = 0, achou = 0;
@@ -444,6 +451,7 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 		printf("\nPaciente nao encontrado!\n");
 	}
 };
+
 //-------------------------------fim Pacientes--------------------------------------------
 
 int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente){
@@ -464,7 +472,7 @@ int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoP
 	}
 
 	else{   //se for paciente
-		arquivoGenerico	= fopen("dados/paciente.bin", "rb");
+		arquivoGenerico	= fopen("dados/pacientes.bin", "rb");
 		fseek(arquivoGenerico, 0*sizeof(paciente), SEEK_SET);
 		while(fread(&pacienteIndividuo, sizeof(paciente), 1, arquivoGenerico)){
 			if(strcmp(dadoComparado, pacienteIndividuo.cpf) == 0){
