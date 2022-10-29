@@ -15,12 +15,17 @@ void cadastroNovoPaciente (FILE *ponteiroPacientes);
 void buscarPaciente (FILE *ponteiroPacientes);
 void alterarDadosPaciente(FILE *ponteiroPacientes);
 int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente);
+void menuConsulta(FILE *ponteiroConsultas);
+void inserirNovaConsulta(FILE *ponteiroConsultas);
+void listarConsultasMedico(FILE *ponteiroConsultas);
+void listarConsultasPacientes(FILE *ponteiroConsultas);
 
 int main(){
 
 	FILE *ponteiroLogin = 0;
 	FILE *ponteiroMedicos = 0;
 	FILE *ponteiroPacientes = 0;
+  FILE *ponteiroConsultas = 0;
 	int opcao, contadorTentativas = 0, acesso = 0;
 
   	//login e cadastro
@@ -69,23 +74,22 @@ int main(){
     switch(opcao){
 	  	case 1:
 			//menu de medicos
-		  	printf("Entrando na seccao medicos...\n");
-			menuMedico(ponteiroMedicos);
-		  	break;
-		case 2:
+		    printf("Entrando na seccao medicos...\n");
+			  menuMedico(ponteiroMedicos);
+		    break;
+		  case 2:
 			//menu de pacientes
-		   	printf("Entrando na seccao paciente...\n");
-			menuPaciente(ponteiroPacientes);
-
-			break;
-		case 3:
+		 	  printf("Entrando na seccao paciente...\n");
+			  menuPaciente(ponteiroPacientes);
+			  break;
+		  case 3:
 			//menu de consultas
-			printf("Entrando na seccao consultas...\n");
-				
+			  printf("Entrando na seccao consultas...\n");
+        menuConsulta(ponteiroConsultas);
    	 		break;
     	case 0:
-      		printf("\nFechando programa...\n");
-      		break;
+      	printf("\nFechando programa...\n");
+      	break;
 	  	default:
 	  		printf("\nOpcao invalida\n");
 		}
@@ -426,10 +430,10 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 			fflush(stdin);
 
 			strcpy(cpfTeste, pacienteIndividuo.cpf);
-					if(verificaDadoRepetido(ponteiroPacientes, cpfTeste, 0) == 1) {
-						printf("\nPaciente ja cadastrado\n");
-						return;
-					}
+			if(verificaDadoRepetido(ponteiroPacientes, cpfTeste, 0) == 1) {
+				printf("\nPaciente ja cadastrado\n");
+				return;
+			}
 
 			printf("Data de Nascimento: ");
 			scanf("%[^\n]s",pacienteIndividuo.dataDeNascimento);
@@ -447,9 +451,8 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 	}
 	if(achou == 1)
 		printf("\nDados alterados com sucesso!\n");
-	if(achou == 0){
+	if(achou == 0)
 		printf("\nPaciente nao encontrado!\n");
-	}
 };
 
 //-------------------------------fim Pacientes--------------------------------------------
@@ -486,6 +489,53 @@ int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoP
 
 // ------------------------------inicio consulta------------------------------------------
 
-// funções
+void menuConsulta(FILE *ponteiroConsultas){
+
+	int opcao;
+
+	do{
+		printf("\n(1) Inserir dados de nova consulta");
+		printf("\n(2) Listar todas consultas de um medico");
+		printf("\n(3) Listar todas consultas de um paciente");
+		printf("\n(0) Retornar\n");
+		scanf("%d", &opcao);
+
+		switch (opcao){
+			case 1:
+				ponteiroConsultas = fopen("dados/consultas.bin", "ab");
+				inserirNovaConsulta(ponteiroConsultas);
+				fclose(ponteiroConsultas);
+				break;
+			case 2:
+				ponteiroConsultas = fopen("dados/consultas.bin", "ab");
+				listarConsultasMedico(ponteiroConsultas);
+				fclose(ponteiroConsultas);
+				break;
+			case 3:
+				ponteiroConsultas = fopen("dados/consultas.bin", "ab");
+				listarConsultasPaciente(ponteiroConsultas);
+				fclose(ponteiroConsultas);
+				break;
+			case 0:
+				printf("Retornando...");
+				break;
+			default:
+				printf("Opcao invalida");
+		}
+	} while(opcao != 0);
+}
+
+// usar a função verifica dado repetido aqui
+void inserirNovaConsulta(FILE *ponteiroConsultas){
+
+}
+
+void listarConsultasMedico(FILE *ponteiroConsultas){
+
+}
+
+void listarConsultasPacientes(FILE *ponteiroConsultas){
+
+}
 
 // ------------------------------fim consulta---------------------------------------------

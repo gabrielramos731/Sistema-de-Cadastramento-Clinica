@@ -18,3 +18,11 @@ typedef struct {
 	char dataDeNascimento[10];
 	char telefone[11];
 } paciente;
+
+typedef struct{
+  char crmMedico[6];
+  char cpfPaciente[11];
+  char data[10];
+  char sintomar[100];  
+  char encaminhamento[100];
+} consultas;
