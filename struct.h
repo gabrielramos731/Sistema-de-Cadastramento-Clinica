@@ -1,9 +1,9 @@
-typedef struct{
+typedef struct {
 	char usuario[20];
 	char senha[10];
 } login;
 
-typedef struct{
+typedef struct {
   char crm[6];
   char nome[50];
   char especialidade[20];
@@ -19,10 +19,10 @@ typedef struct {
 	char telefone[11];
 } paciente;
 
-typedef struct{
+typedef struct {
   char crmMedico[6];
   char cpfPaciente[11];
   char data[10];
-  char sintomar[100];  
+  char sintoma[100];  
   char encaminhamento[100];
-} consultas;
+} consulta;

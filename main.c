@@ -14,22 +14,23 @@ void menuPaciente(FILE *ponteiroPacientes);
 void cadastroNovoPaciente (FILE *ponteiroPacientes);
 void buscarPaciente (FILE *ponteiroPacientes);
 void alterarDadosPaciente(FILE *ponteiroPacientes);
-int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente);
-void menuConsulta(FILE *ponteiroConsultas);
-void inserirNovaConsulta(FILE *ponteiroConsultas);
-void listarConsultasMedico(FILE *ponteiroConsultas);
-void listarConsultasPacientes(FILE *ponteiroConsultas);
+int verificaDado(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente);
+void menuConsulta(FILE *ponteiroConsultas, FILE *ponteiroMedicos, FILE *ponteiroPacientes);
+void inserirNovaConsulta(FILE *ponteiroConsultas, FILE *ponteiroMedicos,FILE *ponteiroPacientes);
+void listarConsultasMedico(FILE *ponteiroConsultas, FILE *ponteiroMedicos);
+void listarConsultasPacientes(FILE *ponteiroConsultas, FILE *ponteiroPacientes);
 
 int main(){
 
 	FILE *ponteiroLogin = 0;
 	FILE *ponteiroMedicos = 0;
 	FILE *ponteiroPacientes = 0;
-  FILE *ponteiroConsultas = 0;
+  	FILE *ponteiroConsultas = 0;
 	int opcao, contadorTentativas = 0, acesso = 0;
 
   	//login e cadastro
 	do{
+		//menu para primeiro acesso e criação de login
 		printf("\n***** MENU *****\n");
 		printf("(1) Efetuar login\n(2) Cadastrar usuario\n(0) Encerrar programa\n");
 		scanf("%d", &opcao);
@@ -60,7 +61,7 @@ int main(){
 		}
 	} while (acesso != 1);
 
-  	//medico, usuario e paciente
+  	//menu para acesso de medico, usuario e paciente
 	do{
 
     printf("\nInsira a opcao desejada: ");
@@ -74,7 +75,7 @@ int main(){
     switch(opcao){
 	  	case 1:
 			//menu de medicos
-		    printf("Entrando na seccao medicos...\n");
+		      printf("Entrando na seccao medicos...\n");
 			  menuMedico(ponteiroMedicos);
 		    break;
 		  case 2:
@@ -85,13 +86,13 @@ int main(){
 		  case 3:
 			//menu de consultas
 			  printf("Entrando na seccao consultas...\n");
-        menuConsulta(ponteiroConsultas);
+        	  menuConsulta(ponteiroConsultas,ponteiroMedicos,ponteiroPacientes);
    	 		break;
     	case 0:
-      	printf("\nFechando programa...\n");
+      	  printf("\nFechando programa...\n");
       	break;
 	  	default:
-	  		printf("\nOpcao invalida\n");
+	  	  printf("\nOpcao invalida\n");
 		}
 	}while (opcao != 0);
 };
@@ -110,9 +111,11 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 		printf("Senha: ");
 		scanf("%[^\n]s", senhaIndividuo);
 
-		fseek(ponteiroLogin, 0*sizeof(login), SEEK_SET);  //resetar a posição da busca para o início
+		//resetar a posição da busca para o início
+		fseek(ponteiroLogin, 0*sizeof(login), SEEK_SET);  
 		while(fread(&inidividuo, sizeof(login), 1, ponteiroLogin)){
-			if(strcmp(inidividuo.usuario, loginIndividuo) == 0 && strcmp(inidividuo.senha, senhaIndividuo) == 0){  //compara o login
+			//compara o login
+			if(strcmp(inidividuo.usuario, loginIndividuo) == 0 && strcmp(inidividuo.senha, senhaIndividuo) == 0){
 				printf("\nLogin efetuado com sucesso\n");
 				*acesso = 1;  //chave para prosseguir
 				return;
@@ -122,6 +125,8 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 		*contadorTentativas += 1;
 	} while(*contadorTentativas < 3);
 };
+
+//---------------------------------Inicio Cadastro--------------------------------------------
 
 void cadastrarNovoUsuario(FILE *ponteiroLogin){
 
@@ -136,12 +141,15 @@ void cadastrarNovoUsuario(FILE *ponteiroLogin){
 	fwrite(&individuo, sizeof(login), 1, ponteiroLogin);  //cadastra sempre no final
 };
 
+//----------------------------------Fim Cadastro---------------------------------------------
+
 //-------------------------------Inicio Medicos----------------------------------------------
 
 void menuMedico(FILE *ponteiroMedicos){
 
 	int opcao;
 
+	//Menu de acesso as funções de medico
 	do{
 		printf("\n(1) Inserir novo medico");
 		printf("\n(2) Buscar medico especifico por nome");
@@ -193,11 +201,13 @@ void cadastroNovoMedico(FILE *ponteiroMedicos){
 	scanf("%[^\n]s", medicoIndividuo.crm);
 	fflush(stdin);
 
+	//Chamada da função para verificar possivel conflito de crm igual
 	strcpy(crmTeste, medicoIndividuo.crm);
-	if(verificaDadoRepetido(ponteiroMedicos, crmTeste, 1) == 1) {
+	if(verificaDado(ponteiroMedicos, crmTeste, 1) == 1) {
 		printf("\nMedico ja cadastrado\n");
 		return;
 	}
+
 	printf("Especialidade: ");
 	scanf("%[^\n]s", medicoIndividuo.especialidade);
 	fflush(stdin);
@@ -282,8 +292,9 @@ void alterarDadosMedico(FILE *ponteiroMedicos){
 			scanf("%[^\n]s", medicoIndividuo.crm);
 			fflush(stdin);
 
+			//Chamada da função para verificar possivel conflito de crm igual
 			strcpy(crmTeste, medicoIndividuo.crm);
-				if(verificaDadoRepetido(ponteiroMedicos, crmTeste, 1) == 1) {
+				if(verificaDado(ponteiroMedicos, crmTeste, 1) == 1) {
 					printf("\nMedico ja cadastrado\n");
 					return;
 				}
@@ -300,7 +311,8 @@ void alterarDadosMedico(FILE *ponteiroMedicos){
 			printf("Novo valor por hora trabalhada: ");
 			scanf("%f%*c", &medicoIndividuo.valorHoraTrabalho);
 			fflush(stdin);
-
+			
+			//apontador para no local onde o crm foi encontrado para alterar os dados
 			fseek(ponteiroMedicos, (contadorArquivo)*sizeof(medico), SEEK_SET);
 			fwrite(&medicoIndividuo, sizeof(medico), 1, ponteiroMedicos);
 			achou = 1;
@@ -312,14 +324,15 @@ void alterarDadosMedico(FILE *ponteiroMedicos){
 		printf("\nCRM nao encontrado\n");
 };
 
-//-------------------------------fim Medicos----------------------------------------------
+//-------------------------------fim Medicos------------------------------------------------
 
-//------------------------------Inicio Pacientes------------------------------------------
+//------------------------------Inicio Pacientes--------------------------------------------
 
 void menuPaciente(FILE *ponteiroPacientes){
 
 	int opcao;
 
+	//menu para acessar as funções de paciente
 	do{
 		printf("\n(1) Inserir novo paciente");
 		printf("\n(2) Buscar pelo nome");
@@ -364,8 +377,9 @@ void cadastroNovoPaciente (FILE *ponteiroPacientes){
 		scanf("%[^\n]s", pacienteIndividuo.cpf);
 		fflush(stdin);
 
+		//Chamada da função para verificar possivel conflito de cpf igual
 		strcpy(cpfTeste, pacienteIndividuo.cpf);
-		if(verificaDadoRepetido(ponteiroPacientes, cpfTeste, 0) == 1) {
+		if(verificaDado(ponteiroPacientes, cpfTeste, 0) == 1) {
 			printf("\nPaciente ja cadastrado\n");
 			return;
 		}
@@ -429,8 +443,9 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 			scanf("%[^\n]s",pacienteIndividuo.cpf);
 			fflush(stdin);
 
+			//Chamada da função para verificar possivel conflito de cpf igual
 			strcpy(cpfTeste, pacienteIndividuo.cpf);
-			if(verificaDadoRepetido(ponteiroPacientes, cpfTeste, 0) == 1) {
+			if(verificaDado(ponteiroPacientes, cpfTeste, 0) == 1) {
 				printf("\nPaciente ja cadastrado\n");
 				return;
 			}
@@ -455,13 +470,14 @@ void alterarDadosPaciente(FILE *ponteiroPacientes){
 		printf("\nPaciente nao encontrado!\n");
 };
 
-//-------------------------------fim Pacientes--------------------------------------------
+//-------------------------------fim Pacientes---------------------------------------------
 
-int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente){
+int verificaDado(FILE *arquivoGenerico, char *dadoComparado, int medicoPaciente){
 
 	medico medicoIndividuo;
 	paciente pacienteIndividuo;
 
+	//Caso medicoPaciente seja 1, trata-se de uma busca por crm, caso nao, sera busca de cpf de paciente
 	if(medicoPaciente == 1){   //se for medico
 		arquivoGenerico	= fopen("dados/medicos.bin", "rb");
 		fseek(arquivoGenerico, 0*sizeof(medico), SEEK_SET);
@@ -487,12 +503,13 @@ int verificaDadoRepetido(FILE *arquivoGenerico, char *dadoComparado, int medicoP
 	}
 };
 
-// ------------------------------inicio consulta------------------------------------------
+// ------------------------------inicio consulta-------------------------------------------
 
-void menuConsulta(FILE *ponteiroConsultas){
+void menuConsulta(FILE *ponteiroConsultas, FILE *ponteiroMedicos, FILE *ponteiroPacientes){
 
 	int opcao;
 
+	//Menu para acessar as funções de consulta
 	do{
 		printf("\n(1) Inserir dados de nova consulta");
 		printf("\n(2) Listar todas consultas de um medico");
@@ -503,39 +520,116 @@ void menuConsulta(FILE *ponteiroConsultas){
 		switch (opcao){
 			case 1:
 				ponteiroConsultas = fopen("dados/consultas.bin", "ab");
-				inserirNovaConsulta(ponteiroConsultas);
+				inserirNovaConsulta(ponteiroConsultas,ponteiroMedicos,ponteiroPacientes);
 				fclose(ponteiroConsultas);
 				break;
 			case 2:
-				ponteiroConsultas = fopen("dados/consultas.bin", "ab");
-				listarConsultasMedico(ponteiroConsultas);
+				ponteiroConsultas = fopen("dados/consultas.bin", "rb");
+				listarConsultasMedico(ponteiroConsultas,ponteiroMedicos);
 				fclose(ponteiroConsultas);
 				break;
 			case 3:
-				ponteiroConsultas = fopen("dados/consultas.bin", "ab");
-				listarConsultasPaciente(ponteiroConsultas);
+				ponteiroConsultas = fopen("dados/consultas.bin", "rb");
+				listarConsultasPacientes(ponteiroConsultas,ponteiroPacientes);
 				fclose(ponteiroConsultas);
 				break;
 			case 0:
-				printf("Retornando...");
+				printf("\nRetornando...\n");
 				break;
 			default:
-				printf("Opcao invalida");
+				printf("\nOpcao invalida!\n");
 		}
 	} while(opcao != 0);
-}
+};
 
-// usar a função verifica dado repetido aqui
-void inserirNovaConsulta(FILE *ponteiroConsultas){
+void inserirNovaConsulta(FILE *ponteiroConsultas, FILE *ponteiroMedicos, FILE *ponteiroPacientes){
+	
+	consulta consultaIndividuo;
+	
 
-}
+	fflush(stdin);
+	printf("\nCRM do medico: ");
+	scanf("%[^\n]s", consultaIndividuo.crmMedico);
+	fflush(stdin);
 
-void listarConsultasMedico(FILE *ponteiroConsultas){
+	//função para verificar existencia do medico no bando de dados
+	if(verificaDado(ponteiroMedicos,consultaIndividuo.crmMedico,1) == 0){
+		printf("\nMedico nao cadastrado, por favor cadastre primeiro!\n");
+		return;
+	}
 
-}
+	printf("CPF do paciente: ");
+	scanf("%[^\n]s", consultaIndividuo.cpfPaciente);
+	fflush(stdin);
 
-void listarConsultasPacientes(FILE *ponteiroConsultas){
+	//função para verificar existencia do paciente no bando de dados
+	if(verificaDado(ponteiroPacientes,consultaIndividuo.cpfPaciente,0) == 0){
+		printf("\nPaciente nao cadastrado, por favor cadastre primeiro!\n");
+		return;
+	}
 
-}
+	printf("Data da consulta: ");
+	scanf("%[^\n]s", consultaIndividuo.data);
+	fflush(stdin);
+	printf("Sintomas: ");
+	scanf("%[^\n]s", consultaIndividuo.sintoma);
+	fflush(stdin);
+	printf("Encaminhamentos: ");
+	scanf("%[^\n]s", consultaIndividuo.encaminhamento);
+	fflush(stdin);
+	fwrite(&consultaIndividuo, sizeof(consulta), 1, ponteiroConsultas);
+};
 
-// ------------------------------fim consulta---------------------------------------------
+void listarConsultasMedico(FILE *ponteiroConsultas, FILE *ponteiroMedicos){
+
+	consulta consultaIndividuo;
+	char crmTeste[6];
+
+	fflush(stdin);
+	printf("\nCRM: ");
+	scanf("%[^\n]s", crmTeste);
+
+	if(verificaDado(ponteiroMedicos, crmTeste, 1) == 0){
+		printf("\nMedido nao cadastrado!\n");
+		return;
+	}
+	
+	fseek(ponteiroConsultas, 0*sizeof(consulta), SEEK_SET);
+	while(fread(&consultaIndividuo, sizeof(consulta), 1, ponteiroConsultas)){
+		if(strcmp(consultaIndividuo.crmMedico, crmTeste) == 0){
+			printf("\nCRM: %s", consultaIndividuo.crmMedico);
+			printf("\nCPF do Paciente: %s", consultaIndividuo.cpfPaciente);
+			printf("\nData da consulta: %s", consultaIndividuo.data);
+			printf("\nSintomas: %s", consultaIndividuo.sintoma);
+			printf("\nEncaminhamento: %s\n", consultaIndividuo.encaminhamento);
+		}
+	}
+};
+
+void listarConsultasPacientes(FILE *ponteiroConsultas, FILE *ponteiroPacientes){
+
+	consulta consultaIndividuo;
+	char cpfTeste[6];
+
+	fflush(stdin);
+	printf("\nCPF: ");
+	scanf("%[^\n]s", cpfTeste);
+
+	if(verificaDado(ponteiroPacientes, cpfTeste, 1) == 0){
+		printf("\nPaciente nao cadastrado!\n");
+		return;
+	}
+	
+	fseek(ponteiroConsultas, 0*sizeof(consulta), SEEK_SET);
+	while(fread(&consultaIndividuo, sizeof(consulta), 1, ponteiroConsultas)){
+		if(strcmp(consultaIndividuo.cpfPaciente, cpfTeste) == 0){
+			printf("\nCRM: %s", consultaIndividuo.crmMedico);
+			printf("\nCPF do Paciente: %s", consultaIndividuo.cpfPaciente);
+			printf("\nData da consulta: %s", consultaIndividuo.data);
+			printf("\nSintomas: %s", consultaIndividuo.sintoma);
+			printf("\nEncaminhamento: %s\n", consultaIndividuo.encaminhamento);
+		}
+	}
+};
+
+// ------------------------------fim consulta----------------------------------------------
