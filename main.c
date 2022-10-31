@@ -1,7 +1,35 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#include"struct.h"
+
+typedef struct {
+	char usuario[20];
+	char senha[10];
+} login;
+
+typedef struct {
+  char crm[6];
+  char nome[50];
+  char especialidade[20];
+  char dataDeNascimento[10];
+  char telefone[11];
+  float valorHoraTrabalho;
+} medico;
+
+typedef struct {
+	char nome[50];
+	char cpf[11];
+	char dataDeNascimento[10];
+	char telefone[11];
+} paciente;
+
+typedef struct {
+  char crmMedico[6];
+  char cpfPaciente[11];
+  char data[10];
+  char sintoma[100];  
+  char encaminhamento[100];
+} consulta;
 
 void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso);
 void cadastrarNovoUsuario(FILE *ponteiroLogin);
@@ -25,7 +53,7 @@ int main(){
 	FILE *ponteiroLogin = 0;
 	FILE *ponteiroMedicos = 0;
 	FILE *ponteiroPacientes = 0;
-  	FILE *ponteiroConsultas = 0;
+  FILE *ponteiroConsultas = 0;
 	int opcao, contadorTentativas = 0, acesso = 0;
 
   	//login e cadastro
@@ -47,7 +75,7 @@ int main(){
 				break;
 
 			case 2:
-				ponteiroLogin = fopen("dados/login.bin", "ab");
+				ponteiroLogin = fopen("dados/login.bin", "a+b");
 				cadastrarNovoUsuario(ponteiroLogin);  //chamada da função cadastrar
 				fclose(ponteiroLogin);
 				break;
@@ -101,7 +129,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 
 	char loginIndividuo[20];
 	char senhaIndividuo[10];
-	login inidividuo;
+	login individuo;
 
 	do{
 		fflush(stdin);
@@ -113,14 +141,16 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 
 		//resetar a posição da busca para o início
 		fseek(ponteiroLogin, 0*sizeof(login), SEEK_SET);  
-		while(fread(&inidividuo, sizeof(login), 1, ponteiroLogin)){
+		while(fread(&individuo, sizeof(login), 1, ponteiroLogin)){
 			//compara o login
-			if(strcmp(inidividuo.usuario, loginIndividuo) == 0 && strcmp(inidividuo.senha, senhaIndividuo) == 0){
+			if(strcmp(individuo.usuario, loginIndividuo) == 0 && strcmp(individuo.senha, senhaIndividuo) == 0){
+				system("cls");
 				printf("\nLogin efetuado com sucesso\n");
 				*acesso = 1;  //chave para prosseguir
 				return;
 			}
 		}
+		printf("\a");
 		printf("\nLogin ou senha invalidos\n");
 		*contadorTentativas += 1;
 	} while(*contadorTentativas < 3);
@@ -131,6 +161,7 @@ void verificarLogin(FILE *ponteiroLogin, int *contadorTentativas,  int *acesso){
 void cadastrarNovoUsuario(FILE *ponteiroLogin){
 
 	login individuo;
+	char usuarioTeste[20];
 
 	fflush(stdin);
 	printf("\nNovo nome de usuario: ");
@@ -138,7 +169,20 @@ void cadastrarNovoUsuario(FILE *ponteiroLogin){
 	fflush(stdin);
 	printf("Nova senha: ");
 	scanf("%[^\n]s", individuo.senha);
+
+	strcpy(usuarioTeste, individuo.usuario);
+  fseek(ponteiroLogin, 0*sizeof(login), SEEK_SET);
+	while(fread(&individuo, sizeof(login), 1, ponteiroLogin)){
+		if(strcmp(individuo.usuario, usuarioTeste) == 0){  //compara o login
+			printf("\nUsuario ja cadastrado!\n");
+			return;
+		}
+	}
+  
 	fwrite(&individuo, sizeof(login), 1, ponteiroLogin);  //cadastra sempre no final
+	system("cls");
+	printf("\nUsuario cadastrado com sucesso!\n");
+  
 };
 
 //----------------------------------Fim Cadastro---------------------------------------------
@@ -253,6 +297,7 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 
 	medico medicoIndividuo;
 	char especialidadeBuscada[20];
+	int achou = 0;
 
 	fflush(stdin);
 	printf("\nEspecialidade desejada: ");
@@ -267,8 +312,11 @@ void listarPorEspecialidade(FILE *ponteiroMedicos){
 			printf("\nData de nascimento: %s", medicoIndividuo.dataDeNascimento);
 			printf("\nTelefone: %s", medicoIndividuo.telefone);
 			printf("\nValor por hora trabalhada: %.2f\n", medicoIndividuo.valorHoraTrabalho);
+			achou = 1;
 		}
 	}
+	if(achou == 0)
+		printf("\nEspecialidade nao cadastrada\n");
 };
 
 void alterarDadosMedico(FILE *ponteiroMedicos){
@@ -413,11 +461,10 @@ void buscarPaciente (FILE *ponteiroPacientes){
 			printf("\nData de nascimento: %s", pacienteIndividuo.dataDeNascimento);
 			printf("\nTelefone: %s\n", pacienteIndividuo.telefone);
 	 		cont++;
-	 		break;
 	 	}
 	}
 	if(cont == 0){
-		printf("\nMedico nao encontrado\n");
+		printf("\nPaciente nao encontrado\n");
 	}
 	cont = 0;
 };
