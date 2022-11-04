@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include"struct.h"
-#include"funcoesCadastro.h"
+#include"funcoes.h"
 
 int main(){
 
