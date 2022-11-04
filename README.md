@@ -22,7 +22,7 @@ IDE para desenvolvimento dos códigos
 
 Controle de versão
 
-[GitHub Desktop](https://code.visualstudio.com/)
+[GitHub Desktop](https://desktop.github.com/)
 
 Compartilhamento do código entre membros
 
